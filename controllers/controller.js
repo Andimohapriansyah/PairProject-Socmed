@@ -1,13 +1,13 @@
-const { formatDate } = require('../helpers/helper');
-const { User, Post, Tag, PostTag } = require('../models');
+const { formatDate } = require("../helpers/helper");
+const { User, Post, Tag, PostTag } = require("../models");
 const { Op } = require("sequelize");
-const bcrypt = require('bcryptjs');
-const nodemailer = require('nodemailer');
+const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
 
 class Controller {
   static async home(req, res) {
     try {
-      res.render('home');
+      res.render("home");
     } catch (error) {
       res.send(error);
     }
@@ -17,7 +17,7 @@ class Controller {
     try {
       const { search, order } = req.query;
       let data = await Post.findAllPosts(search, order);
-      res.render('posts', { data, formatDate });
+      res.render("posts", { data, formatDate });
     } catch (error) {
       res.send(error);
     }
@@ -27,7 +27,7 @@ class Controller {
     try {
       const { error } = req.query;
       let tags = await Tag.findAll();
-      res.render('addPost', { tags, error });
+      res.render("addPost", { tags, error });
     } catch (error) {
       res.send(error);
     }
@@ -48,24 +48,24 @@ class Controller {
         imgUrl,
         userId,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       if (tags) {
         const tagArray = Array.isArray(tags) ? tags : [tags];
-        const postTags = tagArray.map(tagId => ({
+        const postTags = tagArray.map((tagId) => ({
           postId: post.id,
           tagId: Number(tagId),
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         }));
         await PostTag.bulkCreate(postTags);
       }
 
-      res.redirect('/posts');
+      res.redirect("/posts");
     } catch (error) {
       if (error.name === "SequelizeValidationError") {
-        let msg = error.errors.map(el => el.message);
+        let msg = error.errors.map((el) => el.message);
         res.redirect(`/posts/add?error=${msg}`);
       } else {
         res.send(error);
@@ -77,9 +77,9 @@ class Controller {
     try {
       const { id } = req.params;
       let data = await Post.findByPk(id, {
-        include: [User, Tag]
+        include: [User, Tag],
       });
-      res.render('postById', { data, formatDate });
+      res.render("postById", { data, formatDate });
     } catch (error) {
       res.send(error);
     }
@@ -88,7 +88,7 @@ class Controller {
   static async getRegister(req, res) {
     try {
       const { error } = req.query;
-      res.render('register', { error });
+      res.render("register", { error });
     } catch (error) {
       res.send(error);
     }
@@ -96,45 +96,34 @@ class Controller {
 
   static async postRegister(req, res) {
     try {
-      const { email, password, role } = req.body;
-      await User.create({
-        email,
-        password,
-        role
-      });
+      const { username, email, password } = req.body;
 
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: 'apriansyahandi07@gmail.com', 
-          pass: 'ksjp hwjw rswi dche' 
-        }
-      });
-
-      const mailOptions = {
-        from: 'apriansyahandi07@gmail.com',
-        to: email,
-        subject: 'Welcome to AliGram!',
-        text: `Hi ${email},\n\nThanks for joining AliGram! We're excited to have you.\n\nBest,\nThe AliGram Team`
-      };
-
-      await transporter.sendMail(mailOptions);
-
-      res.redirect('/login');
-    } catch (error) {
-      if (error.name === "SequelizeValidationError" || error.name === "SequelizeUniqueConstraintError") {
-        let msg = error.errors.map(el => el.message);
-        res.redirect(`/register?error=${msg}`);
-      } else {
-        res.send(error);
+      // Validate input (optional but recommended)
+      if (!username || !email || !password) {
+        throw new Error("All fields are required!");
       }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create new user
+      await User.create({
+        username,
+        email,
+        password: hashedPassword,
+      });
+
+      // Redirect to login
+      res.redirect("/login");
+    } catch (error) {
+      res.redirect(`/register?error=${encodeURIComponent(error.message)}`);
     }
   }
 
   static async getLogin(req, res) {
     try {
       const { error } = req.query;
-      res.render('login', { error });
+      res.render("login", { error });
     } catch (error) {
       res.send(error);
     }
@@ -157,16 +146,16 @@ class Controller {
       req.session.userId = user.id;
       req.session.role = user.role;
 
-      res.redirect('/posts');
+      res.redirect("/posts"); // or dashboard, up to you
     } catch (error) {
-      res.redirect(`/login?error=${error.message}`);
+      res.redirect(`/login?error=${encodeURIComponent(error.message)}`);
     }
   }
 
   static async logout(req, res) {
     try {
       req.session.destroy();
-      res.redirect('/login');
+      res.redirect("/login");
     } catch (error) {
       res.send(error);
     }

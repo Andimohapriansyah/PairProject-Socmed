@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Posts</title>
+  </head>
+  <body>
+    <h1>Posts</h1>
+    <a href="/posts/add">Add Post</a> | <a href="/logout">Logout</a>
+    <form action="/posts" method="get">
+      <input type="text" name="search" placeholder="Search by title" />
+      <select name="order">
+        <option value="">Sort By</option>
+        <option value="createdAt">Date</option>
+        <option value="title">Title</option>
+      </select>
+      <input type="submit" value="Search" />
+    </form>
+    <% data.forEach(post => { %>
+    <div>
+      <h3><a href="/posts/<%= post.id %>"><%= post.title %></a></h3>
+      <p><%= post.content %></p>
+      <img src="<%= post.formattedImgUrl %>" width="100" />
+      <p>Posted by: <%= post.User.email %></p>
+      <p>Tags: <%= post.Tags.map(tag => tag.name).join(', ') %></p>
+      <p>Posted on: <%= formatDate(post.createdAt) %></p>
+    </div>
+    <% }) %>
+  </body>
+</html>
