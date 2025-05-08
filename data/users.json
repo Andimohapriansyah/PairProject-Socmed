@@ -1,0 +1,16 @@
+[
+  {
+    "email": "user1@example.com",
+    "password": "password123",
+    "role": "user",
+    "createdAt": "2025-05-01",
+    "updatedAt": "2025-05-01"
+  },
+  {
+    "email": "admin@example.com",
+    "password": "admin123",
+    "role": "admin",
+    "createdAt": "2025-05-01",
+    "updatedAt": "2025-05-01"
+  }
+]

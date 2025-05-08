@@ -1,0 +1,18 @@
+[
+  {
+    "title": "Beach Vacation",
+    "content": "Enjoying the sun and sand!",
+    "imgUrl": "https://i.pinimg.com/736x/27/c8/2d/27c82d7f637bd44d89b93487f378cdea.jpg",
+    "userId": 1,
+    "createdAt": "2025-05-02",
+    "updatedAt": "2025-05-02"
+  },
+  {
+    "title": "City Lights",
+    "content": "Night view of the city!",
+    "imgUrl": "https://i.pinimg.com/736x/b2/af/38/b2af38ad699e5429c5a3058e16157d1a.jpg",
+    "userId": 2,
+    "createdAt": "2025-05-03",
+    "updatedAt": "2025-05-03"
+  }
+]

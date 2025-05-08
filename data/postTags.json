@@ -1,0 +1,14 @@
+[
+  {
+    "postId": 1,
+    "tagId": 1,
+    "createdAt": "2025-05-02",
+    "updatedAt": "2025-05-02"
+  },
+  {
+    "postId": 2,
+    "tagId": 2,
+    "createdAt": "2025-05-03",
+    "updatedAt": "2025-05-03"
+  }
+]
