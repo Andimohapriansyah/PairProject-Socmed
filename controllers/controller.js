@@ -1,22 +1,27 @@
-const { formatDate } = require('../helpers/helper');
 const { User, Post, Tag, PostTag } = require('../models');
-const { Op } = require("sequelize");
+const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 
 class Controller {
   static async home(req, res) {
-    try {
-      res.render('home');
-    } catch (error) {
-      res.send(error);
-    }
+    res.render('home');
   }
 
   static async posts(req, res) {
     try {
       const { search, order } = req.query;
-      let data = await Post.findAllPosts(search, order);
+      let options = {
+        include: [
+          { model: User, attributes: ['email'] },
+          { model: Tag, attributes: ['name'] }
+        ],
+        attributes: ['id', 'title', 'content', 'imgUrl', 'userId', 'createdAt']
+      };
+      if (order) options.order = [[order, 'DESC']];
+      if (search) options.where = { title: { [Op.iLike]: `%${search}%` } };
+      let data = await Post.findAll(options);
+      const { formatDate } = require('../helpers/helper');
       res.render('posts', { data, formatDate });
     } catch (error) {
       res.send(error);
@@ -25,9 +30,11 @@ class Controller {
 
   static async getAddPost(req, res) {
     try {
-      const { error } = req.query;
-      let tags = await Tag.findAll();
-      res.render('addPost', { tags, error });
+      if (!req.session.userId) {
+        return res.redirect('/login');
+      }
+      const tags = await Tag.findAll();
+      res.render('addPost', { tags, errors: req.query.errors ? JSON.parse(req.query.errors) : [] });
     } catch (error) {
       res.send(error);
     }
@@ -35,131 +42,88 @@ class Controller {
 
   static async postAddPost(req, res) {
     try {
+      if (!req.session.userId) {
+        return res.redirect('/login');
+      }
       const { title, content, imgUrl, tags } = req.body;
       const userId = req.session.userId;
-
-      if (!userId) {
-        throw new Error("Please login to create a post!");
-      }
-
-      const post = await Post.create({
-        title,
-        content,
-        imgUrl,
-        userId,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-
+      const newPost = await Post.create({ title, content, imgUrl, userId });
       if (tags) {
-        const tagArray = Array.isArray(tags) ? tags : [tags];
-        const postTags = tagArray.map(tagId => ({
-          postId: post.id,
-          tagId: Number(tagId),
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }));
+        const tagIds = Array.isArray(tags) ? tags : [tags];
+        const postTags = tagIds.map(tagId => ({ postId: newPost.id, tagId }));
         await PostTag.bulkCreate(postTags);
       }
-
       res.redirect('/posts');
     } catch (error) {
-      if (error.name === "SequelizeValidationError") {
-        let msg = error.errors.map(el => el.message);
-        res.redirect(`/posts/add?error=${msg}`);
-      } else {
-        res.send(error);
-      }
+      const errors = error.errors ? error.errors.map(e => e.message) : [error.message];
+      res.redirect(`/posts/add?errors=${encodeURIComponent(JSON.stringify(errors))}`);
     }
   }
 
   static async postById(req, res) {
     try {
       const { id } = req.params;
-      let data = await Post.findByPk(id, {
-        include: [User, Tag]
+      const post = await Post.findByPk(id, {
+        include: [
+          { model: User, attributes: ['email'] },
+          { model: Tag, attributes: ['name'] }
+        ]
       });
-      res.render('postById', { data, formatDate });
+      if (!post) throw new Error('Post not found');
+      const { formatDate } = require('../helpers/helper');
+      res.render('postById', { post, formatDate });
     } catch (error) {
       res.send(error);
     }
   }
 
   static async getRegister(req, res) {
-    try {
-      const { error } = req.query;
-      res.render('register', { error });
-    } catch (error) {
-      res.send(error);
-    }
+    res.render('register', { errors: req.query.errors ? JSON.parse(req.query.errors) : [] });
   }
 
   static async postRegister(req, res) {
     try {
       const { email, password, role } = req.body;
-      await User.create({
-        email,
-        password,
-        role
-      });
-
+      const user = await User.create({ email, password, role });
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
           user: 'apriansyahandi07@gmail.com', 
-          pass: 'ksjp hwjw rswi dche' 
+             pass: 'ksjp hwjw rswi dche' 
         }
       });
-
       const mailOptions = {
         from: 'apriansyahandi07@gmail.com',
         to: email,
-        subject: 'Welcome to AliGram!',
-        text: `Hi ${email},\n\nThanks for joining AliGram! We're excited to have you.\n\nBest,\nThe AliGram Team`
+        subject: 'Welcome to InstaClone!',
+        text: `Hi ${email},\n\nThanks for joining InstaClone! We're excited to have you.\n\nBest,\nThe InstaClone Team`
       };
-
       await transporter.sendMail(mailOptions);
-
       res.redirect('/login');
     } catch (error) {
-      if (error.name === "SequelizeValidationError" || error.name === "SequelizeUniqueConstraintError") {
-        let msg = error.errors.map(el => el.message);
-        res.redirect(`/register?error=${msg}`);
-      } else {
-        res.send(error);
-      }
+      const errors = error.errors ? error.errors.map(e => e.message) : [error.message];
+      res.redirect(`/register?errors=${encodeURIComponent(JSON.stringify(errors))}`);
     }
   }
 
   static async getLogin(req, res) {
-    try {
-      const { error } = req.query;
-      res.render('login', { error });
-    } catch (error) {
-      res.send(error);
-    }
+    const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
+    res.render('login', { errors });
   }
 
   static async postLogin(req, res) {
     try {
       const { email, password } = req.body;
       const user = await User.findOne({ where: { email } });
-
-      if (!user) {
-        throw new Error("Invalid email or password!");
-      }
-
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        throw new Error("Invalid email or password!");
-      }
-
+      if (!user) throw new Error('Email not found');
+      const isValid = await bcrypt.compare(password, user.password);
+      if (!isValid) throw new Error('Invalid password');
       req.session.userId = user.id;
       req.session.role = user.role;
-
       res.redirect('/posts');
     } catch (error) {
-      res.redirect(`/login?error=${error.message}`);
+      const errors = [error.message];
+      res.redirect(`/login?errors=${encodeURIComponent(JSON.stringify(errors))}`);
     }
   }
 

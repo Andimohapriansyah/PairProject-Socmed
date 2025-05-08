@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Posts - Aligram</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen font-sans text-gray-800 bg-gray-100">
+  <header class="bg-teal-900 text-white shadow-lg p-4 text-center">
+    <h1 class="text-2xl md:text-3xl font-bold">Aligram</h1>
+  </header>
+  <main class="container mx-auto p-4">
+    <div class="mb-6">
+      <form action="/posts" method="get" class="flex flex-col md:flex-row gap-4">
+        <input type="text" name="search" placeholder="Search by title" class="p-2 border rounded-md flex-1">
+        <select name="order" class="p-2 border rounded-md">
+          <option value="">Sort by</option>
+          <option value="createdAt">Date (Newest)</option>
+          <option value="title">Title</option>
+        </select>
+        <button type="submit" class="bg-teal-500 text-white p-2 rounded-md hover:bg-teal-700 transition">Go</button>
+      </form>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% if (data.length > 0) { %>
+        <% data.forEach(post => { %>
+          <div class="bg-white border rounded-lg shadow-md overflow-hidden hover:shadow-lg transition transform hover:-translate-y-1">
+            <img src="<%= post.imgUrl || 'https://via.placeholder.com/300' %>" alt="<%= post.title %>" class="w-full h-48 object-cover">
+            <div class="p-4">
+              <h2 class="text-lg font-semibold">
+                <a href="/posts/<%= post.id %>" class="text-teal-500 hover:underline"><%= post.title %></a>
+              </h2>
+              <p class="text-gray-600 mt-2"><%= post.content %></p>
+              <p class="text-sm text-gray-500 mt-2"><strong>By:</strong> <%= post.User.email %></p>
+              <p class="text-sm text-gray-500"><strong>Tags:</strong> <%= post.Tags.map(tag => tag.name).join(', ') %></p>
+              <p class="text-sm text-gray-500"><strong>Posted on:</strong> <%= formatDate(post.createdAt) %></p>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="col-span-full text-center">
+          <p class="text-gray-600">No posts available.</p>
+        </div>
+      <% } %>
+    </div>
+    <div class="mt-6 text-center space-x-4">
+      <% if (userId) { %>
+        <a href="/posts/add" class="text-teal-500 hover:text-teal-700 font-semibold">Add Post</a>
+        <span>|</span>
+        <a href="/logout" class="text-teal-500 hover:text-teal-700 font-semibold">Logout</a>
+      <% } else { %>
+        <a href="/login" class="text-teal-500 hover:text-teal-700 font-semibold">Login to Add Post</a>
+      <% } %>
+      <a href="/" class="text-teal-500 hover:text-teal-700 font-semibold">Back to Home</a>
+    </div>
+  </main>
+</body>
+</html>

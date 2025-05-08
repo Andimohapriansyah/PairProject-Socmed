@@ -6,7 +6,6 @@ const PORT = 3000;
 
 app.set("view engine", 'ejs');
 app.use(express.urlencoded({ extended: false }));
-
 app.use(session({
   secret: 'your-secret-key',
   resave: false,
@@ -16,5 +15,5 @@ app.use(session({
 app.use('/', router);
 
 app.listen(PORT, () => {
-  console.log("Test", PORT);
+  console.log("I love you", PORT);
 });

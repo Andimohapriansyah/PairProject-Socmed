@@ -3,56 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AliGram</title>
+  <title>Aligram</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #fafafa;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
+      background: linear-gradient(135deg, #87CEEB, #4682B4, #2F4F4F);
+      animation: gradientShift 10s ease infinite;
     }
-    .container {
-      background-color: white;
-      padding: 40px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      max-width: 500px;
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .wave {
+      position: absolute;
+      bottom: 0;
+      left: 0;
       width: 100%;
+      height: 100px;
+      background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" fill-opacity="0.3" d="M0,128L48,144C96,160,192,192,288,186.7C384,181,480,139,576,133.3C672,128,768,160,864,165.3C960,171,1056,149,1152,144C1248,139,1344,149,1392,154.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x;
+      background-size: cover;
+      animation: wave 7s infinite linear;
     }
-    h1 {
-      color: #262626;
-      font-size: 2.5em;
-      margin-bottom: 10px;
-    }
-    p {
-      color: #999;
-      font-size: 1.2em;
-      margin-bottom: 20px;
-    }
-    .links a {
-      margin: 0 10px;
-      text-decoration: none;
-      color: #0095f6;
-      font-weight: bold;
-      font-size: 1.1em;
-    }
-    .links a:hover {
-      color: #00376b;
+    @keyframes wave {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+      100% { transform: translateY(0); }
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <h1>Welcome to AliGram</h1>
-    <p>Share your moments.</p>
-    <div class="links">
-      <a href="/register">Register</a> | <a href="/login">Login</a> | <a href="/posts">View Posts</a>
+<body class="min-h-screen font-sans text-gray-800 relative overflow-hidden">
+  <header class="bg-teal-900 text-white shadow-lg p-4 text-center z-10">
+    <h1 class="text-3xl md:text-4xl font-bold">Aligram</h1>
+  </header>
+  <div class="wave absolute bottom-0"></div>
+  <main class="container mx-auto p-4 flex items-center justify-center min-h-[calc(100vh-120px)] z-10">
+    <div class="bg-white bg-opacity-90 p-8 rounded-lg shadow-2xl max-w-2xl w-full text-center transform transition duration-300 hover:scale-105">
+      <h2 class="text-4xl md:text-5xl font-extrabold text-teal-900 mb-4">Welcome to Aligram!</h2>
+      <p class="text-xl md:text-2xl text-gray-700 mb-6">Capture, Share, and Connect with the World!</p>
+      <div class="flex flex-col md:flex-row justify-center gap-4 mb-6">
+        <a href="/register" class="bg-teal-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-teal-700 transition transform hover:-translate-y-1">Register</a>
+        <a href="/login" class="bg-teal-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-teal-800 transition transform hover:-translate-y-1">Log In</a>
+      </div>
+      <div class="relative w-full h-64 overflow-hidden rounded-lg">
+        <img src="https://i.pinimg.com/736x/33/19/9b/33199be2e8cfa9540db63af6e7d64aed.jpg" alt="Social Media Preview" class="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-300">
+        <div class="absolute inset-0 bg-gradient-to-t from-teal-900 to-transparent opacity-50"></div>
+      </div>
+      <a href="/posts" class="mt-6 inline-block text-teal-500 hover:text-teal-700 font-semibold underline">Explore Posts Now</a>
     </div>
-  </div>
+  </main>
 </body>
 </html>

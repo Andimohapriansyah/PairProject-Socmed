@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.Post, { foreignKey: 'userId' });
     }
   }
+
   User.init({
     email: {
       type: DataTypes.STRING,

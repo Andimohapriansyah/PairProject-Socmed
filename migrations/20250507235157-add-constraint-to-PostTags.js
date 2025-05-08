@@ -1,10 +1,6 @@
 'use strict';
-
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-
-
+  async up(queryInterface, Sequelize) {
     await queryInterface.addConstraint('PostTags', {
       fields: ['postId'],
       type: 'foreign key',
@@ -28,23 +24,9 @@ module.exports = {
       onDelete: 'cascade',
       onUpdate: 'cascade'
     });
-
-    /**
-     * Add altering commands here.
-     *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
   },
-
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.removeConstraint('PostTags', 'fk_postId');
     await queryInterface.removeConstraint('PostTags', 'fk_tagId');
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
   }
 };
